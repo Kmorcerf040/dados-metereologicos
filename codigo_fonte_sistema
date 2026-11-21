@@ -1,0 +1,63 @@
+import random
+import time
+
+
+def ler_sensores(sensor_conectado: bool) -> dict | None:
+    if not sensor_conectado:
+        return None
+
+    return {
+        "temperatura": round(random.uniform(18.0, 34.0), 1),
+        "humidade": round(random.uniform(40.0, 90.0), 1),
+        "pressao": round(random.uniform(1005.0, 1022.0), 1),
+    }
+
+
+def validar_dados(dados: dict) -> bool:
+    temp_ok = -40.0 <= dados["temperatura"] <= 85.0
+    hum_ok = 0.0 <= dados["humidade"] <= 100.0
+    pres_ok = 800.0 <= dados["pressao"] <= 1100.0
+    return temp_ok and hum_ok and pres_ok
+
+
+def exibir_boletim(dados: dict) -> None:
+    print("-" * 34)
+    print(f"Temperatura : {dados['temperatura']:.1f} °C")
+    print(f"Humidade    : {dados['humidade']:.1f} %")
+    print(f"Pressão     : {dados['pressao']:.1f} hPa")
+
+    if dados["temperatura"] >= 32.0:
+        print("Alerta      : Calor intenso")
+    elif dados["humidade"] >= 85.0:
+        print("Alerta      : Humidade elevada / chance de chuva")
+    print("-" * 34)
+
+
+def main() -> None:
+    sensor_conectado = True
+    intervalo_segundos = 2
+    numero_leituras = 5
+
+    print("Iniciando estação meteorológica...")
+
+    for ciclo in range(1, numero_leituras + 1):
+        print(f"\nCiclo {ciclo}/{numero_leituras}")
+        dados = ler_sensores(sensor_conectado)
+
+        if dados is None:
+            print("ERRO: Falha na comunicação com o sensor.")
+            break
+
+        if validar_dados(dados):
+            exibir_boletim(dados)
+        else:
+            print("AVISO: Dados inválidos descartados.")
+
+        if ciclo < numero_leituras:
+            time.sleep(intervalo_segundos)
+
+    print("\nMonitoramento encerrado.")
+
+
+if __name__ == "__main__":
+    main()
